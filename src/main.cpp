@@ -13,7 +13,7 @@ int main()
     {
         chip8.emulateCycle();
 
-        if (chip8.drawFlag())
+        if (chip8.drawFlag)
         {
             // Draw Graphics
         }

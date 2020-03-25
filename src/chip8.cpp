@@ -23,26 +23,49 @@ void Chip8::emulateCycle()
         this->i = op & 0x0FFF;
         break;
     case (0xD000):
-        // TODO Draw sprite
+    {
+        /*
+        * 0xDXYN draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels. 
+        * Each row of 8 pixels is read as bit-coded starting from memory location I. 
+        * I value doesn’t change after the execution of this instruction. 
+        * VF is set to 1 if any screen pixels are flipped from set to unset when the sprite is drawn, 
+        * and to 0 if that doesn’t happen
+        */
+        int base_x = this->V[(op & 0x0F00) >> 8];
+        int base_y = this->V[(op & 0x00F0) >> 8];
+        this->V[0xF] = 0;
+        for (int y_offset = 0; y_offset < (op & 0x000F); y_offset++)
+        {
+            byte sprite_row = this->memory[this->i + y_offset];
+            for (int x_offset = 0; x_offset < 8; x_offset++)
+            {
+                if (sprite_row & (0x80 >> x_offset))
+                {
+                    // Pixel has to change value
+                    // Set pixel collision register if set bit is unset
+                    this->V[0xF] |= this->gfx[(base_y + y_offset) * 64 + base_x + x_offset];
+                    this->gfx[(base_y + y_offset) * 64 + base_x + x_offset] ^= 1;
+                }
+            }
+        }
+        this->drawFlag = true;
         break;
+    }
     case (0x2000):
         // 2NNN calls subroutine at NNN.
-        this->stack[this->sp++] = (this->pc + 2); // Add 2 to prevent infinite loop
+        this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
         this->pc = op & 0x0FFF;
         break;
     default:
+        this->displayGraphics();
         this->printState();
-        std::cout << "Unknown opcode " << std::hex << op << "\n";
+        std::cout
+            << "Unknown opcode " << std::hex << op << "\n";
         exit(1);
     }
     // Decode
     // Execute
     // Update timers
-}
-
-bool Chip8::drawFlag()
-{
-    return false;
 }
 
 void Chip8::setKeys()
@@ -112,7 +135,7 @@ void Chip8::printState()
     for (int frame = 0; frame < 16; frame++)
     {
         std::cout << "Frame " << std::hex << frame << ": ";
-        print_byte(this->keys[frame]);
+        std::cout << std::setfill('0') << std::setw(3) << std::right << std::hex << this->stack[frame] << " ";
         std::cout << "\n";
     }
     std::cout << "\nStack Pointer: " << this->sp << "\n";

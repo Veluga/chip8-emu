@@ -18,10 +18,11 @@ public:
     void loadFontset();
     void loadGame(std::string);
     void emulateCycle();
-    bool drawFlag();
     void setKeys();
     void printState();
     void displayGraphics();
+
+    bool drawFlag;
 
 private:
     opcode fetch();
