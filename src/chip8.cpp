@@ -14,6 +14,11 @@ void Chip8::emulateCycle()
     Chip8::opcode op = this->fetch();
     switch (op & 0xF000)
     {
+    case (0x2000):
+        // 2NNN calls subroutine at NNN.
+        this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
+        this->pc = op & 0x0FFF;
+        break;
     case (0x6000):
         // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
@@ -51,11 +56,31 @@ void Chip8::emulateCycle()
         this->drawFlag = true;
         break;
     }
-    case (0x2000):
-        // 2NNN calls subroutine at NNN.
-        this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
-        this->pc = op & 0x0FFF;
+    case (0xF000):
+    {
+        switch (op & 0x00FF)
+        {
+        case (0x0033):
+        {
+            /*
+            * 0xFX33 stores the binary-coded decimal representation of VX
+            * with the most significant of three digits at the address in I 
+            * the middle digit at I plus 1
+            * and the least significant digit at I plus 2.
+            */
+            int target_reg = (op & 0x0F00) >> 8;
+            this->memory[this->i] = (int)this->V[target_reg] / 100;
+            this->memory[this->i + 1] = ((int)this->V[target_reg] % 100) / 10;
+            this->memory[this->i + 2] = ((int)this->V[target_reg] % 10);
+            break;
+        }
+        default:
+            std::cout
+                << "Unknown opcode " << std::hex << op << "\n";
+            exit(1);
+        }
         break;
+    }
     default:
         this->displayGraphics();
         this->printState();
