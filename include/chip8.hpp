@@ -23,7 +23,7 @@ public:
     void setKeys();
 
 private:
-    byte memory[4096];
+    byte memory[4096] = {0};
     cpu_register V[16];
     pixel gfx[64 * 32];
     key keys[16];
