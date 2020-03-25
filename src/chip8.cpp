@@ -77,6 +77,10 @@ void Chip8::emulateCycle()
     {
         switch (op & 0x00FF)
         {
+        case (0x0007):
+            // 0xFX07 sets VX to the value of the delay timer.
+            this->V[(op & 0x0F00) >> 8] = this->delay_timer;
+            break;
         case (0x0015):
             // 0xFX15 sets the delay timer to VX.
             this->delay_timer = this->V[(op & 0x0F00) >> 8];
