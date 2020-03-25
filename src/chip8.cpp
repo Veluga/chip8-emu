@@ -132,9 +132,15 @@ void Chip8::emulateCycle()
             << "Unknown opcode " << std::hex << op << "\n";
         exit(1);
     }
-    // Decode
-    // Execute
-    // Update timers
+
+    if (this->delay_timer > 0)
+    {
+        this->delay_timer--;
+    }
+    if (this->sound_timer > 0)
+    {
+        this->sound_timer--;
+    }
 }
 
 void Chip8::setKeys()
@@ -212,8 +218,12 @@ void Chip8::printState()
     std::cout << "Program Counter: " << this->pc << "\n";
 
     std::cout << "\nTimers:\n";
-    std::cout << "Delay: " << this->delay_timer << "\n";
-    std::cout << "Sound: " << this->sound_timer << "\n";
+    std::cout << "Delay: ";
+    print_byte(this->delay_timer);
+    std::cout << "\n";
+    std::cout << "Sound: ";
+    print_byte(this->sound_timer);
+    std::cout << "\n";
 }
 
 void Chip8::displayGraphics()
