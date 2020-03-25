@@ -2,7 +2,12 @@
 #include <fstream>
 #include <iostream>
 
-Chip8::Chip8() {}
+Chip8::Chip8()
+{
+    std::random_device rd;
+    this->rand_engine = std::mt19937(rd());
+    this->rand_dist = std::uniform_int_distribution<>(0, 256);
+}
 
 void Chip8::loadFontset()
 {
@@ -29,6 +34,7 @@ void Chip8::emulateCycle()
         break;
     }
     case (0x1000):
+        // 0x1NNN jumps to address NNN (GOTO).
         this->pc = (op & 0x0FFF);
         break;
     case (0x2000):
@@ -55,6 +61,9 @@ void Chip8::emulateCycle()
         // 0xANNN sets I to the address NNN.
         this->i = op & 0x0FFF;
         break;
+    case (0xC000):
+        // 0xCXNN sets VX to the result of a bitwise and operation on a random number with mask NN
+        this->V[(op & 0x0F00) >> 8] = this->rand_dist(this->rand_engine) & (op & 0x00FF);
     case (0xD000):
     {
         /*

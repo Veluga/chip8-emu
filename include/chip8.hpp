@@ -2,6 +2,7 @@
 #define CHIP8EMU_CHIP8_H
 
 #include <string>
+#include <random>
 
 class Chip8
 {
@@ -34,6 +35,8 @@ private:
     program_counter stack[16] = {0};
     program_counter pc = 0x200;
     index_register i = 0;
+    std::mt19937 rand_engine;
+    std::uniform_int_distribution<> rand_dist;
     unsigned short sp = 0;
     unsigned char delay_timer = 0;
     unsigned char sound_timer = 0;
