@@ -16,23 +16,25 @@ class Chip8
 
 public:
     Chip8();
-    void initialize();
+    void loadFontset();
     void loadGame(std::string);
     void emulateCycle();
     bool drawFlag();
     void setKeys();
 
 private:
+    opcode fetch();
+
     byte memory[4096] = {0};
-    cpu_register V[16];
-    pixel gfx[64 * 32];
-    key keys[16];
-    program_counter pc;
-    index_register i;
-    unsigned short stack[16];
-    unsigned short sp;
-    unsigned char delay_timer;
-    unsigned char sound_timer;
+    cpu_register V[16] = {0};
+    pixel gfx[64 * 32] = {0};
+    key keys[16] = {0};
+    program_counter stack[16] = {0};
+    program_counter pc = 0x200;
+    index_register i = 0;
+    unsigned short sp = 0;
+    unsigned char delay_timer = 0;
+    unsigned char sound_timer = 0;
 };
 
 #endif
