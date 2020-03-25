@@ -1,7 +1,6 @@
 #ifndef CHIP8EMU_CHIP8_H
 #define CHIP8EMU_CHIP8_H
 
-#include <vector>
 #include <string>
 
 class Chip8
@@ -21,6 +20,8 @@ public:
     void emulateCycle();
     bool drawFlag();
     void setKeys();
+    void printState();
+    void displayGraphics();
 
 private:
     opcode fetch();

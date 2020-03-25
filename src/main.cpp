@@ -9,6 +9,8 @@ int main()
     Chip8 chip8;
     chip8.loadGame("Games/PONG");
 
+    chip8.printState();
+
     for (int i = 0; i < 1; i++)
     {
         chip8.emulateCycle();
