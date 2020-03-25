@@ -17,6 +17,17 @@ void Chip8::emulateCycle()
     Chip8::opcode op = this->fetch();
     switch (op & 0xF000)
     {
+    case (0x0000):
+    {
+        switch (op & 0x00FF)
+        {
+        case (0x00EE):
+            // 0x00EE returns from a subroutine.
+            this->pc = this->stack[--this->sp];
+            break;
+        }
+        break;
+    }
     case (0x2000):
         // 2NNN calls subroutine at NNN.
         this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
@@ -26,6 +37,9 @@ void Chip8::emulateCycle()
         // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
         break;
+    case (0x7000):
+        // 0x7XNN adds NN to VX. (Carry flag is not changed)
+        this->V[(op & 0x0F00) >> 8] += (op & 0x00FF);
     case (0xA000):
         // 0xANNN sets I to the address NNN.
         this->i = op & 0x0FFF;
