@@ -74,7 +74,19 @@ void Chip8::emulateCycle()
             this->memory[this->i + 2] = ((int)this->V[target_reg] % 10);
             break;
         }
+        case (0x0065):
+            /*
+             * 0xFX65 fills V0 to VX (including VX) with values from memory starting at address I. 
+             * The offset from I is increased by 1 for each value written, but I itself is left unmodified.
+             */
+            for (int reg_idx = 0; reg_idx <= ((op & 0x0F00) >> 8); reg_idx++)
+            {
+                this->V[reg_idx] = this->memory[this->i + reg_idx];
+            }
+            break;
         default:
+            this->displayGraphics();
+            this->printState();
             std::cout
                 << "Unknown opcode " << std::hex << op << "\n";
             exit(1);
