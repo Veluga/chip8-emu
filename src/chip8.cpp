@@ -28,6 +28,9 @@ void Chip8::emulateCycle()
         }
         break;
     }
+    case (0x1000):
+        this->pc = (op & 0x0FFF);
+        break;
     case (0x2000):
         // 2NNN calls subroutine at NNN.
         this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
