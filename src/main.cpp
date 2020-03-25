@@ -8,6 +8,7 @@ int main()
 {
     Chip8 chip8;
     chip8.loadGame("Games/PONG");
+    chip8.loadFontset();
 
     for (;;)
     {

@@ -6,7 +6,10 @@ Chip8::Chip8() {}
 
 void Chip8::loadFontset()
 {
-    // Stub
+    for (int i = 0; i < 80; i++)
+    {
+        this->memory[this->fontset_base_address + i] = this->fontset[i];
+    }
 }
 
 void Chip8::emulateCycle()
@@ -60,6 +63,21 @@ void Chip8::emulateCycle()
     {
         switch (op & 0x00FF)
         {
+        case (0x0015):
+            // 0xFX15 sets the delay timer to VX.
+            this->delay_timer = this->V[(op & 0x0F00) >> 8];
+            break;
+        case (0x0018):
+            // 0xFX18 sets the sound timer to VX.
+            this->sound_timer = this->V[(op & 0x0F00) >> 8];
+            break;
+        case (0x0029):
+            /*
+             * 0xFX29 sets I to the location of the sprite for the character in VX. 
+             * Characters 0-F (in hexadecimal) are represented by a 4x5 font. 
+             */
+            this->i = this->fontset_base_address + ((op & 0x0F00) >> 8) * 5;
+            break;
         case (0x0033):
         {
             /*
