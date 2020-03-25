@@ -33,6 +33,14 @@ void Chip8::emulateCycle()
         this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
         this->pc = op & 0x0FFF;
         break;
+    case (0x3000):
+        // 0x3XNN skips the next instruction if VX equals NN.
+        // Usually the next instruction is a jump to skip a code block
+        if (this->V[(op & 0x0F00) >> 8] == (op & 0x00FF))
+        {
+            this->pc += 2;
+        }
+        break;
     case (0x6000):
         // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
