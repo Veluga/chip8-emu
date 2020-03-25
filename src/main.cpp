@@ -9,11 +9,10 @@ int main()
     Chip8 chip8;
     chip8.loadGame("Games/PONG");
 
-    chip8.printState();
-
-    for (int i = 0; i < 1; i++)
+    for (;;)
     {
         chip8.emulateCycle();
+        //chip8.printState();
 
         if (chip8.drawFlag())
         {

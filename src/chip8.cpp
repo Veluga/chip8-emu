@@ -17,8 +17,13 @@ void Chip8::emulateCycle()
     case (0x6000):
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
         break;
+    case (0xA000):
+        this->i = op & 0x0FFF;
+        break;
     default:
+        this->printState();
         std::cout << "Unknown opcode " << std::hex << op << "\n";
+        exit(1);
     }
     // Decode
     // Execute
