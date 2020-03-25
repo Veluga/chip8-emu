@@ -15,10 +15,20 @@ void Chip8::emulateCycle()
     switch (op & 0xF000)
     {
     case (0x6000):
+        // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
         break;
     case (0xA000):
+        // 0xANNN sets I to the address NNN.
         this->i = op & 0x0FFF;
+        break;
+    case (0xD000):
+        // TODO Draw sprite
+        break;
+    case (0x2000):
+        // 2NNN calls subroutine at NNN.
+        this->stack[this->sp++] = (this->pc + 2); // Add 2 to prevent infinite loop
+        this->pc = op & 0x0FFF;
         break;
     default:
         this->printState();

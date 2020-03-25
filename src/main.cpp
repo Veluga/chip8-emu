@@ -12,7 +12,6 @@ int main()
     for (;;)
     {
         chip8.emulateCycle();
-        //chip8.printState();
 
         if (chip8.drawFlag())
         {
