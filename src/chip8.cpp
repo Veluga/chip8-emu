@@ -102,6 +102,22 @@ void Chip8::emulateCycle()
             this->V[x] += this->V[y];
             break;
         }
+        case (0x0005):
+        {
+            // 0x8XY5 subtracts VY from VX.
+            // VF is set to 0 when there's a borrow, and 1 when there isn't.
+            this->V[0xF] = 0;
+            int x = (op & 0x0F00) >> 8;
+            int y = (op & 0x0F00) >> 8;
+            for (int i = 0; i < 8; i++)
+            {
+                // Isolate (8 - i)'th bit from VX / VY
+                // Set VF if VX[8 - i] is not set and VY[8 - i] is
+                this->V[0xF] |= ((!(this->V[x] & (0x80 >> i))) & (this->V[y] & (0x80 >> i)));
+            }
+            this->V[x] -= this->V[y];
+            break;
+        }
         default:
             this->displayGraphics();
             this->printState();
