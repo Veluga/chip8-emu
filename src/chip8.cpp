@@ -17,6 +17,16 @@ void Chip8::loadFontset()
     }
 }
 
+void Chip8::keyPressed(int keyCode)
+{
+    this->keys[keyCode] = 1;
+}
+
+void Chip8::keyReleased(int keyCode)
+{
+    this->keys[keyCode] = 0;
+}
+
 void Chip8::emulateCycle()
 {
     Chip8::opcode op = this->fetch();
@@ -175,11 +185,6 @@ void Chip8::emulateCycle()
     {
         this->sound_timer--;
     }
-}
-
-void Chip8::setKeys()
-{
-    // Stub
 }
 
 void Chip8::loadGame(std::string name)

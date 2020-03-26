@@ -19,7 +19,8 @@ public:
     void loadFontset();
     void loadGame(std::string);
     void emulateCycle();
-    void setKeys();
+    void keyPressed(int);
+    void keyReleased(int);
     void printState();
     void displayGraphics();
 

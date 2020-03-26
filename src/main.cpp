@@ -14,7 +14,27 @@ int main()
     chip8.loadGame("Games/PONG");
     chip8.loadFontset();
 
-    // SDL Setup - adapted from https://github.com/JamesGriffin/CHIP-8-Emulator
+    // Keymap definition
+    SDL_Keycode keymap[16] = {
+        SDLK_x,
+        SDLK_1,
+        SDLK_2,
+        SDLK_3,
+        SDLK_q,
+        SDLK_w,
+        SDLK_e,
+        SDLK_a,
+        SDLK_s,
+        SDLK_d,
+        SDLK_z,
+        SDLK_c,
+        SDLK_4,
+        SDLK_r,
+        SDLK_f,
+        SDLK_v,
+    };
+
+    // SDL Setup
     int w = 640;
     int h = 320;
 
@@ -22,7 +42,7 @@ int main()
 
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        std::cout << "SDL failed to initialize: " << SDL_GetError() << "\n";
         exit(1);
     }
 
@@ -32,8 +52,7 @@ int main()
         w, h, 0);
     if (window == NULL)
     {
-        printf("Window could not be created! SDL_Error: %s\n",
-               SDL_GetError());
+        std::cout << "Failed to create window: " << SDL_GetError() << "\n";
         exit(1);
     }
 
@@ -70,12 +89,31 @@ int main()
             {
                 quit = true;
             }
+            if (e.type == SDL_KEYDOWN)
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    if (e.key.keysym.sym == keymap[i])
+                    {
+                        chip8.keyPressed(i);
+                    }
+                }
+            }
+            if (e.type == SDL_KEYUP)
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    if (e.key.keysym.sym == keymap[i])
+                    {
+                        chip8.keyReleased(i);
+                    }
+                }
+            }
         }
         SDL_RenderClear(renderer); // Is this needed?
         SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
-        chip8.setKeys();
         std::this_thread::sleep_for(std::chrono::microseconds(16000));
     }
     return 0;
