@@ -24,13 +24,13 @@ public:
     void displayGraphics();
 
     bool drawFlag;
+    pixel gfx[64 * 32] = {0};
 
 private:
     opcode fetch();
 
     byte memory[4096] = {0};
     cpu_register V[16] = {0};
-    pixel gfx[64 * 32] = {0};
     key keys[16] = {0};
     program_counter stack[16] = {0};
     program_counter pc = 0x200;

@@ -44,7 +44,6 @@ void Chip8::emulateCycle()
         break;
     case (0x3000):
         // 0x3XNN skips the next instruction if VX equals NN.
-        // Usually the next instruction is a jump to skip a code block
         if (this->V[(op & 0x0F00) >> 8] == (op & 0x00FF))
         {
             this->pc += 2;
@@ -64,6 +63,7 @@ void Chip8::emulateCycle()
     case (0xC000):
         // 0xCXNN sets VX to the result of a bitwise and operation on a random number with mask NN
         this->V[(op & 0x0F00) >> 8] = this->rand_dist(this->rand_engine) & (op & 0x00FF);
+        break;
     case (0xD000):
     {
         /*
@@ -91,6 +91,16 @@ void Chip8::emulateCycle()
             }
         }
         this->drawFlag = true;
+        break;
+    }
+    case (0xE000):
+    {
+        switch (op & 0x00FF)
+        {
+        case (0x00A1):
+            // 0xEXA1 skips the next instruction if the key stored in VX isn't pressed.
+            break;
+        }
         break;
     }
     case (0xF000):
