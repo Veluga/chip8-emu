@@ -84,6 +84,10 @@ void Chip8::emulateCycle()
     {
         switch (op & 0x000F)
         {
+        case (0x0000):
+            // 0x8XY0 sets VX to the value of VY.
+            this->V[(op & 0x0F00) >> 8] = this->V[(op & 0x00F0) >> 4];
+            break;
         case (0x0002):
             // 0x8XY2 sets VX to the result of VX & VY
             this->V[(op & 0x0F00) >> 8] &= this->V[(op & 0x00F0) >> 4];
