@@ -55,7 +55,7 @@ void Chip8::emulateCycle()
         break;
     case (0x2000):
         // 2NNN calls subroutine at NNN.
-        this->stack[this->sp++] = this->pc + 2; // Resume execution with subsequent instruction after returning
+        this->stack[this->sp++] = this->pc; // Resume execution with subsequent instruction after returning
         this->pc = op & 0x0FFF;
         break;
     case (0x3000):
@@ -108,7 +108,7 @@ void Chip8::emulateCycle()
             // VF is set to 0 when there's a borrow, and 1 when there isn't.
             this->V[0xF] = 0;
             int x = (op & 0x0F00) >> 8;
-            int y = (op & 0x0F00) >> 8;
+            int y = (op & 0x00F0) >> 4;
             for (int i = 0; i < 8; i++)
             {
                 // Isolate (8 - i)'th bit from VX / VY
@@ -205,7 +205,7 @@ void Chip8::emulateCycle()
              * 0xFX29 sets I to the location of the sprite for the character in VX. 
              * Characters 0-F (in hexadecimal) are represented by a 4x5 font. 
              */
-            this->i = this->fontset_base_address + ((op & 0x0F00) >> 8) * 5;
+            this->i = this->fontset_base_address + this->V[(op & 0x0F00) >> 8] * 5;
             break;
         case (0x0033):
         {
