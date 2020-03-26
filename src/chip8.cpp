@@ -145,7 +145,7 @@ void Chip8::emulateCycle()
         * and to 0 if that doesn’t happen
         */
         int base_x = this->V[(op & 0x0F00) >> 8];
-        int base_y = this->V[(op & 0x00F0) >> 8];
+        int base_y = this->V[(op & 0x00F0) >> 4];
         this->V[0xF] = 0;
         for (int y_offset = 0; y_offset < (op & 0x000F); y_offset++)
         {
