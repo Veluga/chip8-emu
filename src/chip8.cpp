@@ -66,6 +66,17 @@ void Chip8::emulateCycle()
     case (0x7000):
         // 0x7XNN adds NN to VX. (Carry flag is not changed)
         this->V[(op & 0x0F00) >> 8] += (op & 0x00FF);
+    case (0x8000):
+    {
+        switch (op & 0x000F)
+        {
+        case (0x0002):
+            // 0x8XY2 sets VX to the result of VX & VY
+            this->V[(op & 0x0F00) >> 8] &= this->V[(op & 0x00F0) >> 4];
+            break;
+        }
+        break;
+    }
     case (0xA000):
         // 0xANNN sets I to the address NNN.
         this->i = op & 0x0FFF;
