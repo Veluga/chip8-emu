@@ -109,6 +109,10 @@ void Chip8::emulateCycle()
         {
         case (0x00A1):
             // 0xEXA1 skips the next instruction if the key stored in VX isn't pressed.
+            if (!this->keys[this->V[(op & 0x0F00) >> 8]])
+            {
+                this->pc += 2;
+            }
             break;
         }
         break;
