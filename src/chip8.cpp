@@ -65,6 +65,13 @@ void Chip8::emulateCycle()
             this->pc += 2;
         }
         break;
+    case (0x4000):
+        // 0x4XNN skips the next instruction if VX doesn't equal NN.
+        if (this->V[(op & 0x0F00) >> 8] != (op & 0x00FF))
+        {
+            this->pc += 2;
+        }
+        break;
     case (0x6000):
         // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
