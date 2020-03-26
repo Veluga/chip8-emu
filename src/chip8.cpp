@@ -40,6 +40,12 @@ void Chip8::emulateCycle()
             // 0x00EE returns from a subroutine.
             this->pc = this->stack[--this->sp];
             break;
+        default:
+            this->displayGraphics();
+            this->printState();
+            std::cout
+                << "Unknown opcode " << std::hex << op << "\n";
+            exit(1);
         }
         break;
     }
@@ -66,6 +72,7 @@ void Chip8::emulateCycle()
     case (0x7000):
         // 0x7XNN adds NN to VX. (Carry flag is not changed)
         this->V[(op & 0x0F00) >> 8] += (op & 0x00FF);
+        break;
     case (0x8000):
     {
         switch (op & 0x000F)
@@ -74,6 +81,22 @@ void Chip8::emulateCycle()
             // 0x8XY2 sets VX to the result of VX & VY
             this->V[(op & 0x0F00) >> 8] &= this->V[(op & 0x00F0) >> 4];
             break;
+        case (0x0004):
+        {
+            // 0x8XY4 adds VY to VX.
+            // VF is set to 1 when there's a carry, and to 0 when there isn't.
+            int x = (op & 0x0F00) >> 8;
+            int y = (op & 0x00F0) >> 4;
+            this->V[0xF] = (this->V[x] + this->V[y]) > 0xFF;
+            this->V[x] += this->V[y];
+            break;
+        }
+        default:
+            this->displayGraphics();
+            this->printState();
+            std::cout
+                << "Unknown opcode " << std::hex << op << "\n";
+            exit(1);
         }
         break;
     }
@@ -125,6 +148,12 @@ void Chip8::emulateCycle()
                 this->pc += 2;
             }
             break;
+        default:
+            this->displayGraphics();
+            this->printState();
+            std::cout
+                << "Unknown opcode " << std::hex << op << "\n";
+            exit(1);
         }
         break;
     }
