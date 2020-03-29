@@ -98,7 +98,7 @@ void Chip8::emulateCycle()
             // VF is set to 1 when there's a carry, and to 0 when there isn't.
             int x = (op & 0x0F00) >> 8;
             int y = (op & 0x00F0) >> 4;
-            this->V[0xF] = (this->V[x] + this->V[y]) > 0xFF;
+            this->V[0xF] = (this->V[x] & this->V[y]) > 0;
             this->V[x] += this->V[y];
             break;
         }
@@ -109,12 +109,7 @@ void Chip8::emulateCycle()
             this->V[0xF] = 0;
             int x = (op & 0x0F00) >> 8;
             int y = (op & 0x00F0) >> 4;
-            for (int i = 0; i < 8; i++)
-            {
-                // Isolate (8 - i)'th bit from VX / VY
-                // Set VF if VX[8 - i] is not set and VY[8 - i] is
-                this->V[0xF] |= ((!(this->V[x] & (0x80 >> i))) & (this->V[y] & (0x80 >> i)));
-            }
+            this->V[0xF] = ((this->V[x] ^ 0xFF) & this->V[y]) > 0;
             this->V[x] -= this->V[y];
             break;
         }
@@ -216,9 +211,9 @@ void Chip8::emulateCycle()
             * and the least significant digit at I plus 2.
             */
             int target_reg = (op & 0x0F00) >> 8;
-            this->memory[this->i] = (int)this->V[target_reg] / 100;
-            this->memory[this->i + 1] = ((int)this->V[target_reg] % 100) / 10;
-            this->memory[this->i + 2] = ((int)this->V[target_reg] % 10);
+            this->memory[this->i] = ((int)this->V[target_reg]) / 100;
+            this->memory[this->i + 1] = (((int)this->V[target_reg]) % 100) / 10;
+            this->memory[this->i + 2] = ((int)this->V[target_reg]) % 10;
             break;
         }
         case (0x0065):

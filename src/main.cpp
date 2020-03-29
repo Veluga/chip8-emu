@@ -11,7 +11,7 @@ int main()
 {
     // Emu Setup
     Chip8 chip8;
-    chip8.loadGame("Games/PONG");
+    chip8.loadGame("Games/TANK");
     chip8.loadFontset();
 
     // Keymap definition
@@ -69,6 +69,7 @@ int main()
 
     bool quit = false;
     while (!quit)
+    //for (int inst = 0; inst < 1000; inst++)
     {
         chip8.emulateCycle();
 
@@ -110,11 +111,11 @@ int main()
                 }
             }
         }
-        SDL_RenderClear(renderer); // Is this needed?
         SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
         std::this_thread::sleep_for(std::chrono::microseconds(1200));
     }
+    chip8.printState();
     return 0;
 }
