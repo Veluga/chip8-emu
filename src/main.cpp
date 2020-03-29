@@ -114,7 +114,7 @@ int main()
         SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
-        std::this_thread::sleep_for(std::chrono::microseconds(1200));
+        std::this_thread::sleep_for(std::chrono::microseconds(16000));
     }
     chip8.printState();
     return 0;

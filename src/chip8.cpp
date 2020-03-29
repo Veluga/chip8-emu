@@ -36,6 +36,13 @@ void Chip8::emulateCycle()
     {
         switch (op & 0x00FF)
         {
+        case (0x00E0):
+            // 0x00E0 clears the screen
+            for (int i = 0; i < 2048; i++)
+            {
+                this->gfx[i] = 0;
+            }
+            break;
         case (0x00EE):
             // 0x00EE returns from a subroutine.
             this->pc = this->stack[--this->sp];
@@ -166,6 +173,13 @@ void Chip8::emulateCycle()
         case (0x00A1):
             // 0xEXA1 skips the next instruction if the key stored in VX isn't pressed.
             if (!this->keys[this->V[(op & 0x0F00) >> 8]])
+            {
+                this->pc += 2;
+            }
+            break;
+        case (0x009E):
+            // 0xEX9E skips the next instruction if the key stored in VX is pressed.
+            if (this->keys[this->V[(op & 0x0F00) >> 8]])
             {
                 this->pc += 2;
             }
