@@ -79,6 +79,13 @@ void Chip8::emulateCycle()
             this->pc += 2;
         }
         break;
+    case (0x5000):
+        // 0x5XY0 skips the next instruction if VX equals VY.
+        if (this->V[(op & 0x0F00) >> 8] == this->V[(op & 0x00F0) >> 4])
+        {
+            this->pc += 2;
+        }
+        break;
     case (0x6000):
         // 0x6XNN sets VX to NN.
         this->V[(op & 0x0F00) >> 8] = op & 0x00FF;
@@ -95,9 +102,17 @@ void Chip8::emulateCycle()
             // 0x8XY0 sets VX to the value of VY.
             this->V[(op & 0x0F00) >> 8] = this->V[(op & 0x00F0) >> 4];
             break;
+        case (0x0001):
+            // 0x8XY1 sets VX to VX | VY.
+            this->V[(op & 0x0F00) >> 8] |= this->V[(op & 0x00F0) >> 4];
+            break;
         case (0x0002):
             // 0x8XY2 sets VX to the result of VX & VY
             this->V[(op & 0x0F00) >> 8] &= this->V[(op & 0x00F0) >> 4];
+            break;
+        case (0x0003):
+            // 0x8XY3 sets VX to VX ^ VY.
+            this->V[(op & 0x0F00) >> 8] ^= this->V[(op & 0x00F0) >> 4];
             break;
         case (0x0004):
         {
@@ -120,6 +135,28 @@ void Chip8::emulateCycle()
             this->V[x] -= this->V[y];
             break;
         }
+        case (0x0006):
+            // 0x8XY6 stores the least significant bit of VX in VF and then shifts VX to the right by 1.
+            this->V[0xF] = this->V[(op & 0x0F00) >> 8] & 1;
+            this->V[(op & 0x0F00) >> 8] >>= 1;
+            break;
+        case (0x0007):
+        {
+            /* 
+            * 0x8XY7 sets VX to VY minus VX. 
+            * VF is set to 0 when there's a borrow, and 1 when there isn't.
+            */
+            int x = (op & 0x0F00) >> 8;
+            int y = (op & 0x00F0) >> 4;
+            this->V[0xF] = ((this->V[y] ^ 0xFF) & this->V[x]) == 0;
+            this->V[x] = this->V[y] - this->V[x];
+            break;
+        }
+        case (0x000E):
+            // 0x8XYE stores the most significant bit of VX in VF and then shifts VX to the left by 1.
+            this->V[0xF] = (this->V[(op & 0x0F00) >> 8] >> 7) & 1;
+            this->V[(op & 0x0F00) >> 8] <<= 1;
+            break;
         default:
             this->displayGraphics();
             this->printState();
@@ -129,9 +166,20 @@ void Chip8::emulateCycle()
         }
         break;
     }
+    case (0x9000):
+        // 0x9XY0 skips the next instruction if VX doesn't equal VY.
+        if (this->V[(op & 0x0F00) >> 8] != this->V[(op & 0x00F0) >> 4])
+        {
+            this->pc += 2;
+        }
+        break;
     case (0xA000):
         // 0xANNN sets I to the address NNN.
         this->i = op & 0x0FFF;
+        break;
+    case (0xB000):
+        // 0xBNNN jumps to the address NNN plus V0.
+        this->pc = (op & 0x0FFF) + this->V[0];
         break;
     case (0xC000):
         // 0xCXNN sets VX to the result of a bitwise and operation on a random number with mask NN
@@ -170,16 +218,16 @@ void Chip8::emulateCycle()
     {
         switch (op & 0x00FF)
         {
-        case (0x00A1):
-            // 0xEXA1 skips the next instruction if the key stored in VX isn't pressed.
-            if (!this->keys[this->V[(op & 0x0F00) >> 8]])
+        case (0x009E):
+            // 0xEX9E skips the next instruction if the key stored in VX is pressed.
+            if (this->keys[this->V[(op & 0x0F00) >> 8]])
             {
                 this->pc += 2;
             }
             break;
-        case (0x009E):
-            // 0xEX9E skips the next instruction if the key stored in VX is pressed.
-            if (this->keys[this->V[(op & 0x0F00) >> 8]])
+        case (0x00A1):
+            // 0xEXA1 skips the next instruction if the key stored in VX isn't pressed.
+            if (!this->keys[this->V[(op & 0x0F00) >> 8]])
             {
                 this->pc += 2;
             }
@@ -201,6 +249,10 @@ void Chip8::emulateCycle()
             // 0xFX07 sets VX to the value of the delay timer.
             this->V[(op & 0x0F00) >> 8] = this->delay_timer;
             break;
+        case (0x000A):
+            // 0xFX0A awaits key press, and then stores it in VX.
+            // TODO
+            break;
         case (0x0015):
             // 0xFX15 sets the delay timer to VX.
             this->delay_timer = this->V[(op & 0x0F00) >> 8];
@@ -208,6 +260,14 @@ void Chip8::emulateCycle()
         case (0x0018):
             // 0xFX18 sets the sound timer to VX.
             this->sound_timer = this->V[(op & 0x0F00) >> 8];
+            break;
+        case (0x001E):
+            /* 
+            * 0xFX1E adds VX to I. 
+            * VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
+            */
+            this->V[0xF] = (this->i + this->V[(op & 0x0F00) >> 8]) > 0xFFF;
+            this->i += this->V[(op & 0x0F00) >> 8];
             break;
         case (0x0029):
             /*
@@ -230,14 +290,6 @@ void Chip8::emulateCycle()
             this->memory[this->i + 2] = ((int)this->V[target_reg]) % 10;
             break;
         }
-        case (0x001E):
-            /* 
-            * 0xFX1E adds VX to I. 
-            * VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
-            */
-            this->V[0xF] = (this->i + this->V[(op & 0x0F00) >> 8]) > 0xFFF;
-            this->i += this->V[(op & 0x0F00) >> 8];
-            break;
         case (0x0055): /* 
             * FX55 stores V0 to VX (including VX) in memory starting at address I.
             * The offset from I is increased by 1 for each value written.
