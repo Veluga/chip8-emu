@@ -216,6 +216,24 @@ void Chip8::emulateCycle()
             this->memory[this->i + 2] = ((int)this->V[target_reg]) % 10;
             break;
         }
+        case (0x001E):
+            /* 
+            * 0xFX1E adds VX to I. 
+            * VF is set to 1 when there is a range overflow (I+VX>0xFFF), and to 0 when there isn't.
+            */
+            this->V[0xF] = (this->i + this->V[(op & 0x0F00) >> 8]) > 0xFFF;
+            this->i += this->V[(op & 0x0F00) >> 8];
+            break;
+        case (0x0055): /* 
+            * FX55 stores V0 to VX (including VX) in memory starting at address I.
+            * The offset from I is increased by 1 for each value written.
+            * I itself is left unmodified.
+            */
+            for (int reg_idx = 0; reg_idx < ((op & 0x0F00) >> 8); reg_idx++)
+            {
+                this->memory[this->i + reg_idx] = this->V[reg_idx];
+            }
+            break;
         case (0x0065):
             /*
              * 0xFX65 fills V0 to VX (including VX) with values from memory starting at address I. 
