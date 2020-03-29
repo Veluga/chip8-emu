@@ -11,7 +11,7 @@ int main()
 {
     // Emu Setup
     Chip8 chip8;
-    chip8.loadGame("Games/BLINKY");
+    chip8.loadGame("Games/PONG");
     chip8.loadFontset();
 
     // Keymap definition
@@ -69,7 +69,6 @@ int main()
 
     bool quit = false;
     while (!quit)
-    //for (int inst = 0; inst < 1000; inst++)
     {
         chip8.emulateCycle();
 
